@@ -14,7 +14,7 @@ Podrás encontrar la documentación de la API dentro del archivo **docs.yaml**, 
 
 ### 1. Clonar repositorio
 Clonar el repositorio desde la consola utilizando el siguiente comando
-    git clone 
+    git clone (https://github.com/belenkorobka/delilah-resto.git)
 
 ### 2. Instalar proyecto
 Instalar todas las dependencias del proyecto con npm
