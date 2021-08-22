@@ -14,15 +14,21 @@ Podrás encontrar la documentación de la API dentro del archivo **docs.yaml**, 
 
 ### 1. Clonar repositorio
 Clonar el repositorio desde la consola utilizando el siguiente comando
-    git clone (https://github.com/belenkorobka/delilah-resto.git)
+```
+git clone https://github.com/belenkorobka/delilah-resto.git
+```
 
 ### 2. Instalar proyecto
 Instalar todas las dependencias del proyecto con npm
-    npm install
+```
+npm install
+```
 
 ### 3. Crear base de datos
 Crea la base de datos ejecutando el archivo **database.sql** y editando el archivo **.env** según corresponda
 
 ### 4. Iniciar el servidor
 Iniciar el servidor desde la consola de VS code con el siguiente comando
-    npm run dev
+```
+npm run dev
+```
