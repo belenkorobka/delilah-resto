@@ -1,0 +1,854 @@
+openapi: 3.0.2
+info:
+  title: Delilah Restó
+  description: Online order system for restaurant. Clients are able to sign in, see list of products and make an order. Admin users are able to receive orders, update them and see data of all clients.
+  contact:
+    name: Belén Korobka
+    email: belenkorobka@gmail.com
+  version: 1.0.0
+servers:
+- url: http://localhost:3000
+  description: "Local"
+tags:
+- name: user
+  description: Operations on user data 
+- name: product
+  description: Operations on products data 
+- name: order
+  description: Operations on orders data 
+paths:
+  /login:
+    post:
+      tags:
+      - user
+      summary: Sign in endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: belen@gmail.com
+                password:
+                  type: string
+                  example: 123456
+                  
+      responses:
+        200:
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  token:
+                    type: string
+                  admin:
+                    type: boolean
+                    example: false
+        401:
+          description: Failed login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 401
+                  error: 
+                    type: string
+                    example: Usuario o contraseña incorrecta
+        422:
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error422"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+  /user:
+    post:
+      tags:
+      - user
+      summary: Create new user endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullname:
+                  type: string
+                  example: Belen Korobka
+                username:
+                  type: string
+                  example: belenkorobka
+                email:
+                  type: string
+                  example: belen@gmail.com
+                password:
+                  type: string
+                  example: 123456
+                phone:
+                  type: string
+                  example: 123456789
+                address:
+                  type: string
+                  example: 123 4567
+      responses:
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Usuario creado exitosamente
+        400:
+          description: Can not create user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 400
+                  error:
+                    type: string
+                    example: Ya existe un usuario con este email
+        422:
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error422"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+    get:
+      tags:
+      - user
+      summary: Get all users endpoint
+      responses:
+        200:
+          description: array of all users data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/user"
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /user/{id}:
+    get:
+      tags:
+      - user
+      summary: Get user by ID endpoint
+      parameters:
+      - name: id
+        in: path
+        description: ID of user to return
+        required: true
+        schema:
+          type: number
+          example: 1
+      responses:
+        200:
+          description: user found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                      $ref: "#/components/schemas/user"
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error: 
+                    type: string
+                    example: El usuario seleccionado no existe
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /me: 
+    get:
+      tags:
+      - user
+      summary: Get user logged in endpoint
+      responses:
+        200:
+          description: user found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/user"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /product:
+    post:
+      tags:
+      - product
+      summary: Create new product endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: SandPollo
+                name:
+                  type: string
+                  example: Sandwich de Pollo
+                price:
+                  type: number
+                  example: 350
+      responses:
+        201:
+          description: Product created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Producto creado exitosamente
+        422:
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error422"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+    get:
+      tags: 
+      - product
+      summary: Get list of all products endpoint
+      responses:
+        200:
+          description: array of all users data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/product"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /product/{id}:
+    get:
+      tags:
+      - product
+      summary: Get product by ID endpoint
+      parameters:
+      - name: id
+        in: path
+        description: ID of product to return
+        required: true
+        schema:
+          type: number
+          example: 1
+      responses:
+        200:
+          description: product found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                      $ref: "#/components/schemas/product"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error: 
+                    type: string
+                    example: El producto seleccionado no existe
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+    put: 
+      tags: 
+      - product
+      summary: Update product by ID endpoint
+      parameters:
+      - name: id
+        in: path
+        description: ID of product to return
+        required: true
+        schema:
+          type: number
+          example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: string
+                  example: 500
+      responses:
+        200:
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: Producto editado correctamente
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error: 
+                    type: string
+                    example: El producto seleccionado no existe
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+    delete: 
+      tags: 
+      - product
+      summary: Delete product by ID endpoint
+      parameters:
+      - name: id
+        in: path
+        description: ID of product to return
+        required: true
+        schema:
+          type: number
+          example: 1
+      responses:
+        202:
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 202
+                  message:
+                    type: string
+                    example: Producto eliminado correctamente
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error: 
+                    type: string
+                    example: El producto seleccionado no existe
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /order:
+    post:
+      tags:
+      - order
+      summary: Create new order endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items: 
+                    type: object
+                    properties: 
+                      id: 
+                        type: number
+                        example: 1
+                      amount:
+                        type: number
+                        example: 2
+                payment:
+                  type: string
+                  example: Efectivo
+      responses:
+        201:
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Pedido creado exitosamente
+        422:
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error422"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+    get:
+      tags:
+      - order
+      summary: Get all orders endpoint
+      responses:
+        200:
+          description: array of all orders data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/order"
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /order/{id}:
+    get:
+      tags:
+      - order
+      summary: Get order by ID endpoint
+      parameters:
+      - name: id
+        in: path
+        description: ID of order to return
+        required: true
+        schema:
+          type: number
+          example: 1
+      responses:
+        200:
+          description: order found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                      $ref: "#/components/schemas/order"
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error: 
+                    type: string
+                    example: El pedido seleccionado no existe
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+    put: 
+      tags: 
+      - order
+      summary: Update order status by ID endpoint
+      parameters:
+      - name: id
+        in: path
+        description: ID of order to update
+        required: true
+        schema:
+          type: number
+          example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status_id:
+                  type: number
+                  example: 2
+      responses:
+        200:
+          description: order updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: Estado del pedido actualizado correctamente
+        403:
+          description: unauthorized user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error: 
+                    type: string
+                    example: El producto seleccionado no existe
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+  /me/order: 
+    get:
+      tags:
+      - order
+      summary: Get user logged in orders endpoint
+      responses:
+        200:
+          description: orders found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/order"
+        404:
+          description: orders not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  error:
+                    type: string
+                    example: No realisaste ningún pedido
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error500"
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    error500:
+      type: object
+      properties:
+        status:
+          type: number
+          example: 500
+        error:
+          type: string
+          example: Error del servidor
+    error422:
+      type: object
+      properties:
+        status:
+          type: number
+          example: 422
+        error:
+          type: string
+          example: Todos los campos son requeridos
+    user: 
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        fullname:
+          type: string
+          example: Belen Korobka
+        username:
+          type: string
+          example: belenkorobka
+        email:
+          type: string
+          example: belen@gmail.com
+        phone:
+          type: string
+          example: 123456789
+        address:
+          type: string
+          example: 123 4567
+        role:
+          $ref: '#/components/schemas/role'
+    role: 
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+    unauthorized: 
+      type: object
+      properties:
+        status:
+          type: number
+          example: 403
+        error:
+          type: string
+          example: No estás autorizado
+    product:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        code:
+          type: string
+          example: HamClas
+        name:
+          type: string
+          example: Hamburguesa Clásica
+        price:
+          type: number
+          example: 350
+    order:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        date:
+          type: string
+          format: date-time
+        total_price:
+          type: number
+          example: 700
+        payment:
+          type: string
+          example: tarjeta
+        status:
+          type: object
+          properties: 
+            id:
+              type: number
+              example: 1
+            name: 
+              type: string
+              example: Confirmado
+        user:
+          $ref: '#/components/schemas/user'
+        products:
+          type: array
+          items:
+            type: object
+            properties: 
+              amount: 
+                type: number
+                example: 2
+              product:
+                $ref: '#/components/schemas/product'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
