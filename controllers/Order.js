@@ -198,6 +198,36 @@ class Order {
             });
         }
     }
+
+    static async deleteById(req, res) {
+        try {
+            const order = await orderModel.findOne({
+                where: { id: req.params.id },
+            })
+
+            if(!order) {
+                return res.status(404).json({
+                    status: 404,
+                    error: 'El pedido seleccionado no existe'
+                })
+            }
+
+            orderProductModel.destroy({
+                where: { orders_id: req.params.id}
+            })
+            order.destroy()
+
+            return res.status(202).json({
+                status: 202,
+                message: 'Pedido eliminado exitosamente'
+            });
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                error
+            });
+        }
+    }
 }
 
 module.exports = Order;

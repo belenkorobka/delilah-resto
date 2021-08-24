@@ -60,6 +60,9 @@ app.get('/me/order', jwtUser, OrderController.myOrders);
 // update order status by id (ADMIN)
 app.put('/order/:id', jwtAdmin, OrderController.updateStatus);
 
+// delete order by id(ADMIN)
+app.delete('/order/:id', jwtAdmin, OrderController.deleteById);
+
 app.listen(process.env.PORT, () => {
     console.log(`Server started on port=${process.env.PORT}`);
 });

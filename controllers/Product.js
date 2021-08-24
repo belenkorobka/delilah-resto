@@ -1,4 +1,5 @@
 const productModel = require("../models/product");
+const Order = require("./Order");
 
 class Product {
     static async getAll(req, res) {
@@ -116,7 +117,7 @@ class Product {
                 })
             }
 
-            product.destroy();
+            product.destroy()
 
             return res.status(202).json({
                 status: 202,
